@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Personalized Travel Recommendation and Planner - TRAVELLY</title>
+<style>
+    body {
+        margin: 0;
+        font-family: Arial, sans-serif;
+    }
+    .header {
+        background-color: #1a237e;
+        color: white;
+        padding: 20px;
+        text-align: center;
+        position: relative;
+    }
+    .logo {
+        font-size: 24px;
+        font-weight: bold;
+        margin-top: 0;
+    }
+    .travel-recommendation-form {
+        max-width: 600px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+    .form-group {
+        margin-bottom: 20px;
+    }
+    .form-group label {
+        display: block;
+        font-weight: bold;
+    }
+    .form-group select, .form-group input[type="text"] {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        box-sizing: border-box;
+    }
+    .submit-btn {
+        padding: 15px 40px;
+        background-color: #1a237e;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        font-size: 20px;
+        cursor: pointer;
+    }
+</style>
+</head>
+<body>
+
+<div class="header">
+    <span class="logo">TRAVELLY</span>
+    <h1>Personalized Travel Recommendation and Planner</h1>
+</div>
+
+<div class="travel-recommendation-form">
+    <form action="#">
+        <div class="form-group">
+            <label for="travel-type">Who are you traveling with?</label>
+            <select id="travel-type">
+                <option value="family">Family</option>
+                <option value="individual">Individual</option>
+                <option value="business">Business</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="duration">Duration of your trip (in days)</label>
+            <input type="number" id="duration" placeholder="Enter duration">
+        </div>
+        <div class="form-group">
+            <label for="budget">Budget (in USD)</label>
+            <input type="text" id="budget" placeholder="Enter budget">
+        </div>
+        <button type="submit" class="submit-btn">Get Recommendations</button>
+    </form>
+</div>
+
+</body>
+</html>

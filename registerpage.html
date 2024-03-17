@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Register - TRAVELLY</title>
+<style>
+    body {
+        margin: 0;
+        font-family: Arial, sans-serif;
+    }
+    .header {
+        background-color: #1a237e;
+        color: white;
+        padding: 20px;
+        text-align: center;
+    }
+    .logo {
+        font-size: 24px;
+        font-weight: bold;
+        margin-top: 0;
+    }
+    .registration-form {
+        max-width: 500px;
+        margin: 20px auto;
+        padding: 20px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        background-color: #f9f9f9;
+    }
+    .form-group {
+        margin-bottom: 20px;
+    }
+    .form-group label {
+        display: block;
+        font-weight: bold;
+    }
+    .form-group input[type="text"], .form-group input[type="password"], .form-group input[type="email"], .form-group input[type="tel"], .form-group select {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        box-sizing: border-box;
+    }
+    .submit-btn {
+        padding: 15px 40px;
+        background-color: #1a237e;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        font-size: 20px;
+        cursor: pointer;
+    }
+</style>
+</head>
+<body>
+
+<div class="header">
+    <span class="logo">TRAVELLY</span>
+    <h1>Register</h1>
+</div>
+
+<div class="registration-form">
+    <form action="#">
+        <div class="form-group">
+            <label for="name">Name</label>
+            <input type="text" id="name" placeholder="Enter your name">
+        </div>
+        <div class="form-group">
+            <label for="surname">Surname</label>
+            <input type="text" id="surname" placeholder="Enter your surname">
+        </div>
+        <div class="form-group">
+            <label for="email">Email</label>
+            <input type="email" id="email" placeholder="Enter your email">
+        </div>
+        <div class="form-group">
+            <label for="phone">Phone Number</label>
+            <input type="tel" id="phone" placeholder="Enter your phone number">
+        </div>
+        <div class="form-group">
+            <label for="sex">Sex</label>
+            <select id="sex">
+                <option value="male">Male</option>
+                <option value="female">Female</option>
+                <option value="other">Other</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="password">Password</label>
+            <input type="password" id="password" placeholder="Enter password">
+        </div>
+        <button type="submit" class="submit-btn">Register</button>
+    </form>
+</div>
+
+</body>
+</html>
