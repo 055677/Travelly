@@ -1,0 +1,150 @@
+# prompt: write code that user will input rating by itself for each category and the category name will be visible
+
+import pandas as pd
+import random
+from sklearn.cluster import KMeans
+
+# List of cities
+cities = [
+    "Paris", "Marseille", "Lyon", "New York City", "Los Angeles",
+    "Las Vegas", "Madrid", "Barcelona", "Seville", "Rome",
+    "Milan", "Venice", "Beijing", "Shanghai", "Guangzhou",
+    "Mexico City", "Cancun", "Playa del Carmen", "London", "Manchester",
+    "Edinburgh", "Bangkok", "Phuket", "Chiang Mai", "Berlin",
+    "Munich", "Hamburg", "Tokyo", "Kyoto", "Osaka", "Toronto",
+    "Vancouver", "Montreal", "Sydney", "Melbourne", "Brisbane",
+    "Athens", "Thessaloniki", "Heraklion", "New Delhi", "Mumbai",
+    "Jaipur", "Rio de Janeiro", "Sao Paulo", "Salvador", "Amsterdam",
+    "Rotterdam", "The Hague", "Seoul", "Busan", "Incheon", "Moscow",
+    "St. Petersburg", "Sochi", "Buenos Aires", "Cordoba", "Rosario",
+    "Lisbon", "Porto", "Faro", "Vienna", "Salzburg", "Innsbruck",
+    "Zurich", "Geneva", "Basel", "Stockholm", "Gothenburg", "Malmo",
+    "Cairo", "Luxor", "Sharm El Sheikh", "Jakarta", "Bali", "Bandung",
+    "Hanoi", "Ho Chi Minh City", "Da Nang", "Kuala Lumpur", "Penang",
+    "Langkawi", "Marrakech", "Casablanca", "Fes", "Brussels", "Antwerp",
+    "Ghent", "Prague", "Brno", "Ostrava", "Manila", "Cebu City",
+    "Davao City", "Warsaw", "Krakow", "Gdansk", "Copenhagen", "Aarhus",
+    "Odense", "Oslo", "Bergen", "Stavanger", "Johannesburg", "Cape Town",
+    "Durban", "Lima", "Cusco", "Arequipa", "Budapest", "Debrecen",
+    "Szeged", "Helsinki", "Tampere", "Espoo", "Dublin", "Cork", "Galway",
+    "Singapore City", "Sentosa", "Marina Bay", "Jerusalem", "Tel Aviv",
+    "Haifa", "Zagreb", "Split", "Dubrovnik", "Auckland", "Wellington",
+    "Christchurch", "Bogota", "Medellin", "Cartagena", "Santiago",
+    "Valparaiso", "Vina del Mar", "Riyadh", "Jeddah", "Dammam", "Dubai",
+    "Abu Dhabi", "Sharjah", "Taipei", "Kaohsiung", "Taichung", "Kiev",
+    "Lviv", "Odessa", "Tehran", "Isfahan", "Shiraz", "Bucharest",
+    "Cluj-Napoca", "Timisoara", "Sofia", "Plovdiv", "Varna", "Bratislava",
+    "Kosice", "Banska Bystrica", "Hong Kong", "Kowloon", "New Territories",
+    "Belgrade", "Novi Sad", "Nis", "Vilnius", "Kaunas", "Klaipeda",
+    "Riga", "Daugavpils", "Liepaja", "Tallinn", "Tartu", "Narva",
+    "Ljubljana", "Maribor", "Koper", "Minsk", "Brest", "Gomel",
+    "Luxembourg City", "Esch-sur-Alzette", "Differdange", "Kuwait City",
+    "Hawalli", "Al Ahmadi", "Doha", "Al Rayyan", "Al Wakrah", "Muscat",
+    "Seeb", "Salalah", "Manama", "Riffa", "Muharraq", "Nicosia",
+    "Limassol", "Larnaca", "Valletta", "Sliema", "St. Julian's",
+    "Reykjavik", "Kópavogur", "Hafnarfjörður", "Podgorica", "Niksic",
+    "Herceg Novi", "Beirut", "Tripoli", "Sidon"
+]
+
+# Create cities dataframe with IDs
+cities_df = pd.DataFrame({'City_ID': range(1, len(cities) + 1), 'City': cities})
+
+# Save cities dataframe to CSV
+cities_df.to_csv('cities1.csv', index=False)
+
+# Generate user preferences and rankings
+users = []
+num_users = 100
+for user_id in range(1, num_users + 1):
+    # Randomly select number of cities rated by the user (between 2 and 10)
+    num_cities_rated = random.randint(2, 10)
+    
+    # Randomly select cities for the user to rate
+    cities_rated = random.sample(cities, num_cities_rated)
+    
+    for city in cities_rated:
+        # Generate random ratings for each category
+        gyms = random.uniform(0, 5)
+        local_services = random.uniform(0, 5)
+        monuments = random.uniform(0, 5)
+        museums = random.uniform(0, 5)
+        parks = random.uniform(0, 5)
+        restaurants = random.uniform(0, 5)
+        swimming_pools = random.uniform(0, 5)
+        theatres = random.uniform(0, 5)
+        view_points = random.uniform(0, 5)
+        
+        # Append user preferences to the list
+        city_id = cities_df.loc[cities_df['City'] == city, 'City_ID'].values[0]
+        users.append([user_id, city_id, gyms, local_services, monuments, museums,
+                      parks, restaurants, swimming_pools, theatres, view_points])
+
+# Create users dataframe
+users_df = pd.DataFrame(users, columns=['User_ID', 'City_ID', 'Gyms', 'Local_Services',
+                                         'Monuments', 'Museums', 'Parks', 'Restaurants',
+                                         'Swimming_Pools', 'Theatres', 'View_Points'])
+
+# Save users dataframe to CSV
+users_df.to_csv('user_preferences1.csv', index=False)
+
+
+!pip install pandas
+
+# Load user preferences data
+user_preferences = pd.read_csv('user_preferences1.csv')
+# Perform k-means clustering on the ratings
+n_clusters = 13
+kmeans = KMeans(n_clusters=n_clusters, random_state=42)
+user_ratings = user_preferences.iloc[:, 2:].values
+cluster_labels = kmeans.fit_predict(user_ratings)
+user_preferences['Cluster'] = cluster_labels
+# Function to generate recommendations for a new user
+def generate_recommendations(new_user_ratings, kmeans_model, user_preferences_df, cities_df):
+    # Predict the cluster for the new user based on their ratings
+    new_user_cluster = kmeans_model.predict([new_user_ratings])[0]
+    
+    # Find cities that belong to the same cluster as the new user
+    cluster_cities = user_preferences_df[user_preferences_df['Cluster'] == new_user_cluster]
+    cluster_city_ids = cluster_cities['City_ID'].unique()
+    
+    # Filter cities dataframe to get city names
+    recommended_cities = cities_df[cities_df['City_ID'].isin(cluster_city_ids)]['City'].tolist()
+    
+    return recommended_cities[:10]
+
+# Function to predict the cluster for a new user based on their ratings
+def predict_cluster(new_user_ratings, kmeans_model):
+    return kmeans_model.predict([new_user_ratings])[0]
+
+# Load the cities data
+# Define new user preferences (ratings for each category)
+new_user_ratings = []
+
+# Get user input for each category rating
+categories = ['Gyms', 'Local Services', 'Monuments', 'Museums', 'Parks', 'Restaurants',
+              'Swimming Pools', 'Theatres', 'View Points']
+
+for category in categories:
+    rating = float(input(f"Enter your rating for {category}: "))
+    new_user_ratings.append(rating)
+
+# Predict the cluster for the new user
+new_user_cluster = predict_cluster(new_user_ratings, kmeans)
+
+# Find cities that belong to the same cluster as the new user
+cluster_cities = user_preferences[user_preferences['Cluster'] == new_user_cluster]
+cluster_city_ids = cluster_cities['City_ID'].unique()
+
+# Filter cities dataframe to get city names
+recommended_cities = cities_df[cities_df['City_ID'].isin(cluster_city_ids)]['City'].tolist()
+
+print("New User Preferences:")
+print("Ratings:", new_user_ratings)
+
+# Recommend cities based on new user preferences
+recommended_cities = generate_recommendations(new_user_ratings, kmeans, user_preferences, cities_df)
+
+# Display recommended city names
+print("\nRecommended Cities:")
+for city in recommended_cities:
+    print(city)
