@@ -1,4 +1,5 @@
 # prompt: write code that user will input rating by itself for each category and the category name will be visible
+!pip install pandas
 
 import pandas as pd
 import random
@@ -93,7 +94,7 @@ users_df.to_csv('user_preferences1.csv', index=False)
 # Load user preferences data
 user_preferences = pd.read_csv('user_preferences1.csv')
 # Perform k-means clustering on the ratings
-n_clusters = 13
+n_clusters = 34
 kmeans = KMeans(n_clusters=n_clusters, random_state=42)
 user_ratings = user_preferences.iloc[:, 2:].values
 cluster_labels = kmeans.fit_predict(user_ratings)
@@ -110,7 +111,7 @@ def generate_recommendations(new_user_ratings, kmeans_model, user_preferences_df
     # Filter cities dataframe to get city names
     recommended_cities = cities_df[cities_df['City_ID'].isin(cluster_city_ids)]['City'].tolist()
     
-    return recommended_cities[:10]
+    return recommended_cities[:2]
 
 # Function to predict the cluster for a new user based on their ratings
 def predict_cluster(new_user_ratings, kmeans_model):
@@ -148,3 +149,38 @@ recommended_cities = generate_recommendations(new_user_ratings, kmeans, user_pre
 print("\nRecommended Cities:")
 for city in recommended_cities:
     print(city)
+    # Load hotel data
+
+
+# prompt: i need that based on recomended city it will also print information from csv files that i have uploaded it should print only City name solo_hotel solo_rest and places to visit
+# Print city information for the recommended city
+def print_city_information(city_name):
+    # Print hotel information
+    cities_df = pd.read_csv('cities1.csv')
+    hotel_data = pd.read_csv('hotel.csv')
+    restaurant_data = pd.read_csv('rest.csv')
+    places_to_visit_data = pd.read_csv('places.csv')
+    print("\nHotels in", city_name)
+    print(hotel_data[hotel_data['City'] == city_name]['solo_hotel'])
+
+    # Print restaurant information
+    print("\nRestaurants in", city_name)
+    print(restaurant_data[restaurant_data['City'] == city_name]['solo_rest'])
+
+    # Print places to visit information
+    print("\nPlaces to Visit in", city_name)
+    print(places_to_visit_data[places_to_visit_data['City'] == city_name]['Cultural_place'])
+    print(places_to_visit_data[places_to_visit_data['City'] == city_name]['Historical_place'])
+    print(places_to_visit_data[places_to_visit_data['City'] == city_name]['Adventure_place'])
+    print(places_to_visit_data[places_to_visit_data['City'] == city_name]['City_place'])
+    print(places_to_visit_data[places_to_visit_data['City'] == city_name]['Relax_place'])
+    print(places_to_visit_data[places_to_visit_data['City'] == city_name]['Extreme_place'])
+
+# Recommend cities based on new user preferences
+recommended_cities = generate_recommendations(new_user_ratings, kmeans, user_preferences, cities_df)
+
+# Display recommended city names
+
+for city in recommended_cities:
+    print(city)
+    print_city_information(city)
