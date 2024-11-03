@@ -9,6 +9,7 @@ restaurant_data = pd.read_csv('restoran.csv')
 hotel_data = pd.read_csv('hotels.csv')
 places_to_visit_data = pd.read_csv('places.csv')
 user_preferences = pd.read_csv('user_preferences1.csv')
+budget_data = pd.read_csv('budget.csv')  # Load your budget data
 
 # Perform k-means clustering on the ratings
 n_clusters = 20
@@ -22,6 +23,18 @@ def generate_recommendations(new_user_ratings):
     cluster_city_ids = user_preferences[user_preferences['Cluster'] == new_user_cluster]['City_ID'].unique()
     recommended_cities = cities_df[cities_df['City_ID'].isin(cluster_city_ids)]['City'].tolist()
     return random.choice(recommended_cities)
+
+# Function to calculate average cost
+def calculate_average_cost(vacation_type, num_children, num_days, city_id):
+    budget_info = budget_data[budget_data['City_ID'] == city_id].iloc[0]
+    if vacation_type == 'solo':
+        average_cost = budget_info['Solo_Budget'] * num_days
+    elif vacation_type == 'couple':
+        average_cost = budget_info['Couple_Budget'] * num_days
+    elif vacation_type == 'family':
+        child_budget = budget_info['Child_Budget'] * num_children
+        average_cost = (budget_info['Couple_Budget'] + child_budget) * num_days
+    return average_cost
 
 # Function to print city information, including the country
 def print_city_information(city_name, vacation_type):
@@ -48,18 +61,32 @@ def print_city_information(city_name, vacation_type):
         print(f"\n{category.replace('_', ' ').title()}:")
         print(places_to_visit_data[places_to_visit_data['City'] == city_name][category].to_string(index=False))
 
+# Ask user to input vacation type first
+vacation_type = input("Enter your vacation type (solo/family/couple): ")
+num_days = int(input("How many days are you planning to spend? "))
+
+# Handle family case
+num_children = 0
+if vacation_type.lower() == 'family':
+    num_children = int(input("How many children are traveling with you? "))
+
 # Get user ratings for each category
 categories = ['Gyms', 'Local_Services', 'Monuments', 'Museums', 'Parks', 'Restaurants', 'Swimming_Pools', 'Theatres', 'View_Points']
 new_user_ratings = [float(input(f"Enter your rating for {category.replace('_', ' ')}: ")) for category in categories]
 
-# Ask user to input vacation type
-vacation_type = input("Enter your vacation type (solo/family/couple): ")
-
 # Recommend a random city based on new user preferences
 recommended_city = generate_recommendations(new_user_ratings)
+
+# Get the City ID for further calculations
+city_id = cities_df.loc[cities_df['City'] == recommended_city, 'City_ID'].values[0]
+
+# Calculate the average cost
+average_cost = calculate_average_cost(vacation_type.lower(), num_children, num_days, city_id)
 
 # Display recommended city name and print its information
 print("\nRecommended City:")
 print(recommended_city)
 print_city_information(recommended_city, vacation_type.lower())
 
+# Print the average cost of the trip
+print(f"\nEstimated average cost for your trip: ${average_cost:.2f}")
