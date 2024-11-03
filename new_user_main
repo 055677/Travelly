@@ -1,186 +1,65 @@
-# prompt: write code that user will input rating by itself for each category and the category name will be visible
-!pip install pandas
-
 import pandas as pd
 import random
 from sklearn.cluster import KMeans
 
-# List of cities
-cities = [
-    "Paris", "Marseille", "Lyon", "New York City", "Los Angeles",
-    "Las Vegas", "Madrid", "Barcelona", "Seville", "Rome",
-    "Milan", "Venice", "Beijing", "Shanghai", "Guangzhou",
-    "Mexico City", "Cancun", "Playa del Carmen", "London", "Manchester",
-    "Edinburgh", "Bangkok", "Phuket", "Chiang Mai", "Berlin",
-    "Munich", "Hamburg", "Tokyo", "Kyoto", "Osaka", "Toronto",
-    "Vancouver", "Montreal", "Sydney", "Melbourne", "Brisbane",
-    "Athens", "Thessaloniki", "Heraklion", "New Delhi", "Mumbai",
-    "Jaipur", "Rio de Janeiro", "Sao Paulo", "Salvador", "Amsterdam",
-    "Rotterdam", "The Hague", "Seoul", "Busan", "Incheon", "Moscow",
-    "St. Petersburg", "Sochi", "Buenos Aires", "Cordoba", "Rosario",
-    "Lisbon", "Porto", "Faro", "Vienna", "Salzburg", "Innsbruck",
-    "Zurich", "Geneva", "Basel", "Stockholm", "Gothenburg", "Malmo",
-    "Cairo", "Luxor", "Sharm El Sheikh", "Jakarta", "Bali", "Bandung",
-    "Hanoi", "Ho Chi Minh City", "Da Nang", "Kuala Lumpur", "Penang",
-    "Langkawi", "Marrakech", "Casablanca", "Fes", "Brussels", "Antwerp",
-    "Ghent", "Prague", "Brno", "Ostrava", "Manila", "Cebu City",
-    "Davao City", "Warsaw", "Krakow", "Gdansk", "Copenhagen", "Aarhus",
-    "Odense", "Oslo", "Bergen", "Stavanger", "Johannesburg", "Cape Town",
-    "Durban", "Lima", "Cusco", "Arequipa", "Budapest", "Debrecen",
-    "Szeged", "Helsinki", "Tampere", "Espoo", "Dublin", "Cork", "Galway",
-    "Singapore City", "Sentosa", "Marina Bay", "Jerusalem", "Tel Aviv",
-    "Haifa", "Zagreb", "Split", "Dubrovnik", "Auckland", "Wellington",
-    "Christchurch", "Bogota", "Medellin", "Cartagena", "Santiago",
-    "Valparaiso", "Vina del Mar", "Riyadh", "Jeddah", "Dammam", "Dubai",
-    "Abu Dhabi", "Sharjah", "Taipei", "Kaohsiung", "Taichung", "Kiev",
-    "Lviv", "Odessa", "Tehran", "Isfahan", "Shiraz", "Bucharest",
-    "Cluj-Napoca", "Timisoara", "Sofia", "Plovdiv", "Varna", "Bratislava",
-    "Kosice", "Banska Bystrica", "Hong Kong", "Kowloon", "New Territories",
-    "Belgrade", "Novi Sad", "Nis", "Vilnius", "Kaunas", "Klaipeda",
-    "Riga", "Daugavpils", "Liepaja", "Tallinn", "Tartu", "Narva",
-    "Ljubljana", "Maribor", "Koper", "Minsk", "Brest", "Gomel",
-    "Luxembourg City", "Esch-sur-Alzette", "Differdange", "Kuwait City",
-    "Hawalli", "Al Ahmadi", "Doha", "Al Rayyan", "Al Wakrah", "Muscat",
-    "Seeb", "Salalah", "Manama", "Riffa", "Muharraq", "Nicosia",
-    "Limassol", "Larnaca", "Valletta", "Sliema", "St. Julian's",
-    "Reykjavik", "Kópavogur", "Hafnarfjörður", "Podgorica", "Niksic",
-    "Herceg Novi", "Beirut", "Tripoli", "Sidon"
-]
-
-# Create cities dataframe with IDs
-cities_df = pd.DataFrame({'City_ID': range(1, len(cities) + 1), 'City': cities})
-
-# Save cities dataframe to CSV
-cities_df.to_csv('cities1.csv', index=False)
-
-# Generate user preferences and rankings
-users = []
-num_users = 100
-for user_id in range(1, num_users + 1):
-    # Randomly select number of cities rated by the user (between 2 and 10)
-    num_cities_rated = random.randint(2, 10)
-    
-    # Randomly select cities for the user to rate
-    cities_rated = random.sample(cities, num_cities_rated)
-    
-    for city in cities_rated:
-        # Generate random ratings for each category
-        gyms = random.uniform(0, 5)
-        local_services = random.uniform(0, 5)
-        monuments = random.uniform(0, 5)
-        museums = random.uniform(0, 5)
-        parks = random.uniform(0, 5)
-        restaurants = random.uniform(0, 5)
-        swimming_pools = random.uniform(0, 5)
-        theatres = random.uniform(0, 5)
-        view_points = random.uniform(0, 5)
-        
-        # Append user preferences to the list
-        city_id = cities_df.loc[cities_df['City'] == city, 'City_ID'].values[0]
-        users.append([user_id, city_id, gyms, local_services, monuments, museums,
-                      parks, restaurants, swimming_pools, theatres, view_points])
-
-# Create users dataframe
-users_df = pd.DataFrame(users, columns=['User_ID', 'City_ID', 'Gyms', 'Local_Services',
-                                         'Monuments', 'Museums', 'Parks', 'Restaurants',
-                                         'Swimming_Pools', 'Theatres', 'View_Points'])
-
-# Save users dataframe to CSV
-users_df.to_csv('user_preferences1.csv', index=False)
-
-
-!pip install pandas
-
-# Load user preferences data
+# Load data from CSV files
+cities_df = pd.read_csv('cities1.csv')
+country_data = pd.read_csv('country.csv')
+restaurant_data = pd.read_csv('restoran.csv')
+hotel_data = pd.read_csv('hotels.csv')
+places_to_visit_data = pd.read_csv('places.csv')
 user_preferences = pd.read_csv('user_preferences1.csv')
+
 # Perform k-means clustering on the ratings
-n_clusters = 34
+n_clusters = 20
 kmeans = KMeans(n_clusters=n_clusters, random_state=42)
 user_ratings = user_preferences.iloc[:, 2:].values
-cluster_labels = kmeans.fit_predict(user_ratings)
-user_preferences['Cluster'] = cluster_labels
+user_preferences['Cluster'] = kmeans.fit_predict(user_ratings)
+
 # Function to generate recommendations for a new user
-def generate_recommendations(new_user_ratings, kmeans_model, user_preferences_df, cities_df):
-    # Predict the cluster for the new user based on their ratings
-    new_user_cluster = kmeans_model.predict([new_user_ratings])[0]
-    
-    # Find cities that belong to the same cluster as the new user
-    cluster_cities = user_preferences_df[user_preferences_df['Cluster'] == new_user_cluster]
-    cluster_city_ids = cluster_cities['City_ID'].unique()
-    
-    # Filter cities dataframe to get city names
+def generate_recommendations(new_user_ratings):
+    new_user_cluster = kmeans.predict([new_user_ratings])[0]
+    cluster_city_ids = user_preferences[user_preferences['Cluster'] == new_user_cluster]['City_ID'].unique()
     recommended_cities = cities_df[cities_df['City_ID'].isin(cluster_city_ids)]['City'].tolist()
-    
-    return recommended_cities[:2]
+    return random.choice(recommended_cities)
 
-# Function to predict the cluster for a new user based on their ratings
-def predict_cluster(new_user_ratings, kmeans_model):
-    return kmeans_model.predict([new_user_ratings])[0]
+# Function to print city information, including the country
+def print_city_information(city_name, vacation_type):
+    print("\nCity:", city_name)
 
-# Load the cities data
-# Define new user preferences (ratings for each category)
-new_user_ratings = []
+    # Get country name
+    city_id = cities_df.loc[cities_df['City'] == city_name, 'City_ID'].values[0]
+    country_name = country_data.loc[country_data['City_ID'] == city_id, 'Country_Name'].values[0] if not country_data[country_data['City_ID'] == city_id].empty else "Unknown"
+    print("Country:", country_name)
 
-# Get user input for each category rating
-categories = ['Gyms', 'Local Services', 'Monuments', 'Museums', 'Parks', 'Restaurants',
-              'Swimming Pools', 'Theatres', 'View Points']
+    # Hotel information based on vacation type
+    print(f"\nHotel in {city_name}:")
+    if vacation_type == 'family':
+        print(hotel_data[hotel_data['City'] == city_name]['family_hotel'].to_string(index=False))
 
-for category in categories:
-    rating = float(input(f"Enter your rating for {category}: "))
-    new_user_ratings.append(rating)
+    # Restaurant information
+    print(f"\nRestaurant in {city_name}:")
+    if vacation_type == 'family':
+        print(restaurant_data[restaurant_data['City'] == city_name]['fam_rest'].to_string(index=False))
 
-# Predict the cluster for the new user
-new_user_cluster = predict_cluster(new_user_ratings, kmeans)
-
-# Find cities that belong to the same cluster as the new user
-cluster_cities = user_preferences[user_preferences['Cluster'] == new_user_cluster]
-cluster_city_ids = cluster_cities['City_ID'].unique()
-
-# Filter cities dataframe to get city names
-recommended_cities = cities_df[cities_df['City_ID'].isin(cluster_city_ids)]['City'].tolist()
-
-print("New User Preferences:")
-print("Ratings:", new_user_ratings)
-
-# Recommend cities based on new user preferences
-recommended_cities = generate_recommendations(new_user_ratings, kmeans, user_preferences, cities_df)
-
-# Display recommended city names
-print("\nRecommended Cities:")
-for city in recommended_cities:
-    print(city)
-    # Load hotel data
-
-
-# prompt: i need that based on recomended city it will also print information from csv files that i have uploaded it should print only City name solo_hotel solo_rest and places to visit
-# Print city information for the recommended city
-def print_city_information(city_name):
-    # Print hotel information
-    cities_df = pd.read_csv('cities1.csv')
-    hotel_data = pd.read_csv('hotel.csv')
-    restaurant_data = pd.read_csv('rest.csv')
-    places_to_visit_data = pd.read_csv('places.csv')
-    print("\nHotels in", city_name)
-    print(hotel_data[hotel_data['City'] == city_name]['solo_hotel'])
-
-    # Print restaurant information
-    print("\nRestaurants in", city_name)
-    print(restaurant_data[restaurant_data['City'] == city_name]['solo_rest'])
-
-    # Print places to visit information
+    # Places to visit
     print("\nPlaces to Visit in", city_name)
-    print(places_to_visit_data[places_to_visit_data['City'] == city_name]['Cultural_place'])
-    print(places_to_visit_data[places_to_visit_data['City'] == city_name]['Historical_place'])
-    print(places_to_visit_data[places_to_visit_data['City'] == city_name]['Adventure_place'])
-    print(places_to_visit_data[places_to_visit_data['City'] == city_name]['City_place'])
-    print(places_to_visit_data[places_to_visit_data['City'] == city_name]['Relax_place'])
-    print(places_to_visit_data[places_to_visit_data['City'] == city_name]['Extreme_place'])
+    for category in ['Cultural_place', 'Historical_place', 'Adventure_place', 'City_place', 'Relax_place', 'Extreme_place']:
+        print(f"\n{category.replace('_', ' ').title()}:")
+        print(places_to_visit_data[places_to_visit_data['City'] == city_name][category].to_string(index=False))
 
-# Recommend cities based on new user preferences
-recommended_cities = generate_recommendations(new_user_ratings, kmeans, user_preferences, cities_df)
+# Get user ratings for each category
+categories = ['Gyms', 'Local_Services', 'Monuments', 'Museums', 'Parks', 'Restaurants', 'Swimming_Pools', 'Theatres', 'View_Points']
+new_user_ratings = [float(input(f"Enter your rating for {category.replace('_', ' ')}: ")) for category in categories]
 
-# Display recommended city names
+# Ask user to input vacation type
+vacation_type = input("Enter your vacation type (solo/family/couple): ")
 
-for city in recommended_cities:
-    print(city)
-    print_city_information(city)
+# Recommend a random city based on new user preferences
+recommended_city = generate_recommendations(new_user_ratings)
+
+# Display recommended city name and print its information
+print("\nRecommended City:")
+print(recommended_city)
+print_city_information(recommended_city, vacation_type.lower())
+
